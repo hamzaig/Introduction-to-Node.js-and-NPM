@@ -29,7 +29,19 @@ const http = require("http")
 const server = http.createServer((req, res) => {
     // console.log(req);
     // console.log(res);
-    res.end("Hello From the server")
+    const { url } = req;
+    // console.log(url);
+    if (url === "/" || url === "/overview") {
+        res.end("This is The Overview Page")
+    } else if (url === "/product") {
+        res.end("This is product Page")
+    } else {
+        res.writeHead(404, {
+            "Content-type": "text/html",
+            "MyHeader": "Hamzaig"
+        });
+        res.end("<h1>Page Not Found</h1>");
+    }
 })
 
 
