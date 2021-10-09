@@ -25,7 +25,11 @@ const http = require("http")
 // 1st output this and second file data
 
 /////////////////////////////////////////////////////////
-// Http Request
+// Http Server
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const dataObj = JSON.parse(data);
+
+
 const server = http.createServer((req, res) => {
     // console.log(req);
     // console.log(res);
@@ -35,6 +39,9 @@ const server = http.createServer((req, res) => {
         res.end("This is The Overview Page")
     } else if (url === "/product") {
         res.end("This is product Page")
+    } else if (url === "/api") {
+        res.writeHead(200, { "Content-type": "application/json" });
+        res.end(data);
     } else {
         res.writeHead(404, {
             "Content-type": "text/html",
