@@ -1,5 +1,6 @@
 const fs = require("fs");
 const http = require("http")
+const url = require("url")
 
 //////////////////////////////////////////////
 // Files
@@ -35,7 +36,6 @@ const replaceTemplate = (template, product) => {
     output = output.replace(/{%DESCRIPTION%}/g, product.description);
     output = output.replace(/{%ID%}/g, product.id);
     if (!product.organic) {
-        console.log("Hello");
         output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
     }
     return output;
@@ -49,20 +49,22 @@ const templateOverview = fs.readFileSync(`${__dirname}/templates/template-overvi
 const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`).toString();
 const dataObj = JSON.parse(data);
 
-// console.log(templateCard);
 
 const server = http.createServer((req, res) => {
-    const { url } = req;
-    // console.log(url);
-    if (url === "/" || url === "/overview") {
+
+    const { query, pathname } = url.parse(req.url, true);
+    if (pathname === "/" || pathname === "/overview") {
         res.writeHead(200, { "Content-type": "text/html" });
         const cardHtml = dataObj.map(el => replaceTemplate(templateCard, el)).join("");
         const output = templateOverview.replace(/{%PRODUCT_CARDS%}/g, cardHtml);
         res.end(output)
 
-    } else if (url === "/product") {
-        res.end("This is product Page")
-    } else if (url === "/api") {
+    } else if (pathname === "/product") {
+        res.writeHead(200, { "Content-type": "text/html" });
+        const product = dataObj[query.id]
+        const output = replaceTemplate(templateProduct, product);
+        res.end(output)
+    } else if (pathname === "/api") {
         res.writeHead(200, { "Content-type": "application/json" });
         res.end(data);
     } else {
@@ -78,4 +80,3 @@ const server = http.createServer((req, res) => {
 server.listen(8000, "localhost", () => {
     console.log("Listing to requests on port 8000");
 })
-// console.log(server);
